@@ -1,0 +1,179 @@
+import pygame
+import random
+import math
+
+# initialize the pygame
+pygame.init()
+
+# create the screen
+screen = pygame.display.set_mode((800, 600))
+
+# Add Background
+background = pygame.image.load('background.jpg')
+
+# Title and Icon
+pygame.display.set_caption("biShip")
+icon = pygame.image.load('spaceship.png')
+pygame.display.set_icon(icon)
+
+# Player
+playerImg = pygame.image.load('player.png')
+playerX = 0
+playerY = 480
+playerX_change = 0
+playerY_change = 0
+
+# Enemy 1-3
+enemyImg = pygame.image.load('Enemy.png')
+enemyX = random.randint(0, 800)
+enemyY = random.randint(50, 150)
+enemyX_change = 0.7
+enemyY_change = 20
+
+enemy2Img = pygame.image.load('Enemy2.png')
+enemy2X = random.randint(0, 800)
+enemy2Y = random.randint(50, 150)
+enemy2X_change = 0.9
+enemy2Y_change = 10
+
+# Bullet // Ready: You cant see the bullet ; Fire: bullet moves //
+bulletImg = pygame.image.load('bullet.png')
+bulletX = 370
+bulletY = 480
+bulletX_change = 0
+bulletY_change = 15
+bullet_state = 'ready'
+
+score = 0
+def player(x, y):
+    screen.blit(playerImg, (x, y))
+
+def enemy(x, y):
+    screen.blit(enemyImg, (x, y))
+
+def enemy2(x, y):
+    screen.blit(enemy2Img, (x, y))
+
+def fire_bullet(x, y):
+    global bullet_state
+    bullet_state = 'fire'
+    screen.blit(bulletImg, (x+16, y+10))
+
+def isCollision(enemyX, enemyY, bulletX, bulletY):
+    distance = math.sqrt((math.pow(enemyX-bulletX,2))+ (math.pow(enemyY-bulletY,2)))
+    if distance <20:
+        return True
+    else:
+        return False
+# Game Loop
+running = True
+while running: #(infinite while-loop)
+
+     # RGB
+    screen.fill((55,80,120))
+    # Background Image
+    screen.blit(background, (0,0))
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        # if keystroke is pressed check whether its right or left
+        if event.type == pygame.KEYDOWN:
+            #print("A keystroke is pressed")
+            if event.key == pygame.K_LEFT:
+                playerX_change = -0.9
+               # print("Left arrow is pressed")
+            if event.key == pygame.K_RIGHT:
+                playerX_change = 0.9
+               # print("Right arrow is pressed")
+            if event.key == pygame.K_SPACE:
+                if bullet_state == 'ready':
+                    bulletX = playerX
+                    fire_bullet(bulletX, bulletY)
+
+              #  print("Right arrow is pressed")
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                playerX_change = 0
+              #  print("Keystroke has been released")
+
+        # Up or Down
+        if event.type == pygame.KEYDOWN:
+          #  print("A keystroke is pressed")
+            if event.key == pygame.K_UP:
+                playerY_change = -0.9
+             #   print("Up arrow is pressed")
+            if event.key == pygame.K_DOWN:
+                playerY_change = 0.9
+             #   print("Down arrow is pressed")
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+                playerY_change = 0
+              #  print("Keystroke has been released")
+
+    # Have to Add this when you Add Player in the game
+    playerX += playerX_change
+    playerY += playerY_change
+    # Have to Add this when you Add Enemy in the game
+    enemyX += enemyX_change
+    enemyY += enemyY_change
+
+    enemy2X += enemy2X_change
+    enemy2Y += enemy2Y_change
+
+
+    if playerX <=0:
+        playerX = 0
+    elif playerX >= 730:
+        playerX = 730
+    if playerY <=0:
+        playerY = 0
+    elif playerY >= 550:
+        playerY = 550
+
+    if enemyX <=0:
+        enemyX_change = 0.7
+        enemyY += enemyY_change
+    elif enemyX >= 730:
+        enemyX = -0.7
+        enemyY += enemyY_change
+    if enemyY <=0:
+        enemyY_change = 0.7
+    elif enemyY >= 550:
+        enemyY_change = -0.7
+
+    if enemy2X <= 0:
+        enemy2X_change = 0.9
+    elif enemy2X >= 730:
+        enemy2X_change = -0.9
+    if enemy2Y <= 0:
+        enemy2Y_change = 0.9
+    elif enemy2Y >= 550:
+        enemy2Y_change = -0.9
+
+    # Bullet Movement
+    if bulletY <= 0:
+        bulletY = 480
+        bullet_state = 'ready'
+    if bullet_state == "fire":
+        fire_bullet(bulletX, bulletY)
+        bulletY -= bulletY_change
+    #Collision
+    collision = isCollision(enemyX, enemyY, bulletX, bulletY)
+    if collision:
+        bulletY = 480
+        bullet_state = 'ready'
+        score += 1
+        print(score)
+        enemyX = random.randint(0, 800)
+        enemyY = random.randint(50, 150)
+        enemy2X = random.randint(0, 800)
+        enemy2Y = random.randint(50, 150)
+
+    # Have to Add this when you Add Player/Enemy in the game
+
+    player(playerX, playerY)
+    enemy(enemyX, enemyY)
+    enemy2(enemy2X, enemy2Y)
+    pygame.display.update()
+
